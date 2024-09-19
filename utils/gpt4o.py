@@ -20,15 +20,15 @@ def gpt4o(prompt, image):
                 }
             ],
         },
-        # {
-        #     "role": "user",
-        #     "content": [
-        #         {
-        #             'type': 'image',
-        #             'image': image_base64
-        #         },
-        #     ],
-        # },
+        {
+            "role": "user",
+            "content": [
+                {
+                    'type': 'image',
+                    'image': image_base64
+                },
+            ],
+        },
     ]
 
     headers = {
@@ -40,7 +40,7 @@ def gpt4o(prompt, image):
         "messages": PROMPT_MESSAGES,
         "temperature": 0,
         "top_p": 0.95,
-        "max_tokens": 200,
+        "max_tokens": 2048,
     }
 
     response = requests.post(ENDPOINT, headers=headers, json=payload)
