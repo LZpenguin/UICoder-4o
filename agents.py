@@ -1,6 +1,7 @@
 from utils.gpt4o import gpt4o
 import re
 
+
 class Agent:
     def __init__(self, prompt):
         self.prompt = prompt
@@ -8,21 +9,23 @@ class Agent:
     def infer(self, image, parse=True):
         text = gpt4o(self.prompt, image)
         return self.parser(text) if parse else text
-    
+
     def parser(self, text):
         return text
-    
+
+
 class AgentSplit(Agent):
     def __init__(self):
-        super().__init__("""你是一个擅长于搭建网页的网页工程师。
-# CONTEXT #
-我想实现一个将网页实现图片转换为实现该网页效果代码的项目。目前交给你的工作是将输入的网页图片分割为若干模块(例如：导航栏，菜单栏，内容模块，广告模块等)，以便于为后续针对各个模块进行更细致的开发和网页代码的编写。
-# OBJECTIVE
-将输入的网页图片分割为若干模块，以便于为后续针对各个模块进行更细致的开发和网页代码的编写。
-# RESPONSE #
-给出分割后的各模块的图片的坐标，图片左上角为原点，图片长宽分别记作1，给出模块左上角坐标(x1,y1)和右下角坐标(x2,y2)，最后输出模块名和(x1,y1,x2,y2), 保证x1<x2, y1<y2
+        super().__init__("""# Role #
+You are a web engineer specializing in building websites.
+# Context #
+I aim to develop a project that converts a webpage image into code that replicates the same webpage functionality. Your current task is to divide the input webpage image into several modules (e.g., navigation bar, menu bar, content module, advertisement module, etc.) to facilitate more detailed development and coding for each module in subsequent steps.
+# Objective #
+Divide the input webpage image into multiple non-overlapping modules that connect seamlessly. Adjacent modules should share common borders in their coordinates (for example, if Module Two is to the right of Module One, the left coordinate of Module Two should equal the right coordinate of Module One).
+# Response #
+Provide the regions of the divided image, represented as (left, upper, right, lower), where left, upper, right, and lower are relative coordinates based on the original image dimensions. Finally, output each module's name along with its corresponding coordinates in the format: Module Name: (left, upper, right, lower), and the value range should be between 0 and 1.
 # Initialize #
-接下来的消息我会给你发送网页图片，收到后请按照以上规则输出分割后的各模块的名称以及坐标""")
+For this message, simply reply with "OK". In the next message, I will send you the webpage image. Upon receiving it, please output the names and coordinates of the divided modules according to the guidelines above.""")
 
     def parser(self, text):
         pattern = r"(\d+)\.\s+\*\*(.*?)\*\*\n\s+.*\((.*?)\)"
@@ -37,27 +40,30 @@ class AgentSplit(Agent):
 
         return modules
 
+
 class AgentI2C(Agent):
     def __init__(self):
-        super().__init__("""你是一个擅长于搭建网页的网页工程师。
-# CONTEXT #
-我想实现一个将网页实现图片转换为实现该网页效果代码的项目。目前交给你的工作是根据分割后的网页模块的名称和图片，生成对应的HTML代码。
-# OBJECTIVE
-根据输入的网页图片和模块名称，生成模块HTML网页代码。
-# RESPONSE #
-给出能够实现模块功能的HTML网页代码。
+        super().__init__("""# Role #
+You are a web engineer specializing in building web pages.
+# Context #
+I am working on a project that converts webpage images into code that replicates the same visual and functional effects of the original webpage. Your current task is to generate the corresponding HTML code based on the provided module names and images of the segmented webpage.
+# Objective #
+Generate the HTML code for each module using the input webpage images and their module names.
+# Response #
+Provide the HTML code that implements the functionality of each module.
 # Initialize #
-接下来的消息我会给你发送网页图片和模块名称，收到后请按照以上规则给出HTML代码""")
+For this message, simply reply with "OK". In the next message, I will send you the webpage images and module names. Upon receiving them, please provide the HTML code according to the guidelines above.""")
+
 
 class AgentAssemble(Agent):
     def __init__(self):
         super().__init__("""# Role #
-你是一个擅长于搭建网页的网页工程师。
-# CONTEXT #
-我想实现一个将网页实现图片转换为实现该网页效果代码的项目。目前交给你的工作是根据网页整体，划分后的模块名称，图片区域和对应的HTML代码，组合生成完整的网页HTML代码。
-# OBJECTIVE
-根据网页整体，划分后的模块名称，图片区域和对应的HTML代码，组合生成完整的网页HTML代码。
-# RESPONSE #
-给出能够实现整体功能的HTML网页代码。
+You are a web engineer skilled in building websites.
+# Context #
+I am working on a project that converts images of web pages into code that replicates the original web page's effects. Your current task is to combine the overall webpage, the names of the divided modules, the image regions, and their corresponding HTML code to generate the complete HTML code for the webpage.
+# Objective #
+Based on the overall webpage, the module names, image regions, and corresponding HTML code, combine them to produce the complete HTML code of the webpage.
+# Response #
+Provide the HTML code that implements the overall functionality of the webpage.
 # Initialize #
-接下来的消息我会给你发送网页整体图片和模块名称，图片区域和对应的HTML代码，收到后请按照以上规则给出HTML代码""")        
+For this message, simply reply with "OK". In the next message, I will send you the overall webpage image, module names, image regions, and corresponding HTML code. Upon receiving them, please provide the HTML code according to the guidelines above.""")
